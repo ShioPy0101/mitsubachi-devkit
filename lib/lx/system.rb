@@ -53,7 +53,7 @@ module Lx
       log = File.open(log_path, "a")
       log.sync = true
       log.puts("\n==> #{Time.now}: #{command.join(' ')}")
-      pid = Process.spawn(env, *command, chdir: cwd.to_s, out: log, err: log, pgroup: true)
+      pid = Process.spawn(env, *command, chdir: cwd.to_s, in: File::NULL, out: log, err: log, pgroup: true)
       Process.detach(pid)
       pid
     ensure
@@ -70,7 +70,7 @@ module Lx
     end
 
     def identity(pid)
-      output, status = Open3.capture2("ps", "-p", pid.to_s, "-o", "lstart=", "-o", "command=")
+      output, status = Open3.capture2({"LC_ALL" => "C"}, "ps", "-p", pid.to_s, "-o", "lstart=")
       return nil unless status.success?
 
       output.strip
