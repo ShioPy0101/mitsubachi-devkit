@@ -175,7 +175,7 @@ module Lx
       uri = URI.parse(value)
       database = uri.path.to_s.delete_prefix("/")
       refuse!("database #{database.inspect}") unless database == database_name && database.end_with?("_development")
-      refuse!("database host #{uri.host}") if uri.host && !local_host?(uri.host)
+      refuse!("database host #{uri.host}") if uri.host && !uri.host.empty? && !local_host?(uri.host)
     rescue URI::InvalidURIError
       raise SafetyError, "Refusing to start: invalid DATABASE_URL."
     end

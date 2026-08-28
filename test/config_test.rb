@@ -50,6 +50,10 @@ class ConfigTest < Minitest::Test
     assert_raises(Lx::SafetyError) { Lx::Config.new(root: @root, env: {}).ensure_safe! }
   end
 
+  def test_ローカルsocketのdevelopmentデータベースを許可する
+    assert Lx::Config.new(root: @root, env: {}).ensure_safe!
+  end
+
   def test_runtime外のストレージを拒否する
     write_override("services" => {"ruby" => {"env" => {"FILE_STORAGE_ROOT" => "/srv/mitsubachi/files"}}})
 
