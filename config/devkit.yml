@@ -93,4 +93,7 @@ services:
       - --database
       - ${RUNTIME_ROOT}/mailpit.db
     port: 8025
+    ports:
+      - 1025
+      - 8025
     healthcheck: http://127.0.0.1:8025/

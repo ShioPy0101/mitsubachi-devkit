@@ -82,6 +82,7 @@ module Lx
 
     def ensure_safe!
       env = services.values.reduce(local_environment) { |all, service| all.merge(service.env) }
+      [@env.to_h, @local_env].each { |candidate| check_supplied_environment!(candidate) }
       rails_env = env.fetch("RAILS_ENV", "development")
       refuse!("RAILS_ENV=#{rails_env}") unless rails_env == "development"
 
@@ -180,6 +181,13 @@ module Lx
       raise SafetyError, "Refusing to start: invalid DATABASE_URL."
     end
 
+    def check_supplied_environment!(env)
+      refuse!("RAILS_ENV=#{env['RAILS_ENV']}") if env["RAILS_ENV"] && env["RAILS_ENV"] != "development"
+      check_database!(env["DATABASE_URL"]) if env["DATABASE_URL"]
+      check_storage!(env["FILE_STORAGE_ROOT"]) if env["FILE_STORAGE_ROOT"]
+      check_hosts!(env)
+    end
+
     def check_storage!(value)
       storage = Pathname(value).expand_path
       expected = runtime_root.join("storage").expand_path
@@ -244,6 +252,10 @@ module Lx
       def port
         value = @definition["port"]
         value && Integer(value)
+      end
+
+      def ports
+        @definition.fetch("ports", [port]).compact.map { |value| Integer(value) }
       end
 
       def log_path

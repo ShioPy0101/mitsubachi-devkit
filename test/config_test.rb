@@ -44,6 +44,12 @@ class ConfigTest < Minitest::Test
     assert_match(/Refusing to start/, error.message)
   end
 
+  def test_shellから渡されたproduction環境を拒否する
+    config = Lx::Config.new(root: @root, env: {"RAILS_ENV" => "production"})
+
+    assert_raises(Lx::SafetyError) { config.ensure_safe! }
+  end
+
   def test_productionデータベースを拒否する
     write_override("services" => {"ruby" => {"env" => {"DATABASE_URL" => "postgresql:\/\/db.example\/mitsubachi_production"}}})
 

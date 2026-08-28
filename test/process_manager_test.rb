@@ -152,6 +152,14 @@ class ProcessManagerTest < Minitest::Test
     assert_empty @backend.spawns
   end
 
+  def test_MailpitのSMTP_port競合も拒否する
+    @port_probe.open = true
+
+    error = assert_raises(Lx::CommandError) { @manager.start("mailpit") }
+
+    assert_match(/Port 1025 is already in use/, error.message)
+  end
+
   private
 
   def build_manager

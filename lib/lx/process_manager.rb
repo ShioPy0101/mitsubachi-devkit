@@ -151,9 +151,10 @@ module Lx
     end
 
     def check_port!(service)
-      return unless service.port && @port_probe.open?("127.0.0.1", service.port)
+      conflict = service.ports.find { |port| @port_probe.open?("127.0.0.1", port) }
+      return unless conflict
 
-      raise CommandError, "Port #{service.port} is already in use; refusing to start #{service.name}"
+      raise CommandError, "Port #{conflict} is already in use; refusing to start #{service.name}"
     end
 
     def wait_until_healthy(service, pid)
