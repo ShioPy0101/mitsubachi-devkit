@@ -1,0 +1,96 @@
+runtime:
+  root: ${RUNTIME_ROOT}
+
+repositories:
+  ruby: ${RUBY_ROOT}
+  front: ${FRONT_ROOT}
+  infra: ${INFRA_ROOT}
+
+database:
+  name: mitsubachi_ruby_development
+  url: postgresql:///mitsubachi_ruby_development
+
+health_timeout: 30
+stop_timeout: 10
+
+required_commands:
+  - ruby
+  - bundle
+  - node
+  - npm
+  - psql
+  - pg_isready
+  - nginx
+  - mailpit
+  - ffmpeg
+
+startup_order:
+  - ruby
+  - front
+  - nginx
+  - mailpit
+
+services:
+  ruby:
+    cwd: ${RUBY_ROOT}
+    command:
+      - bin/rails
+      - server
+      - -b
+      - 127.0.0.1
+      - -p
+      - "3001"
+    port: 3001
+    healthcheck: http://127.0.0.1:3001/api/health/ready
+    env:
+      RAILS_ENV: development
+      RACK_ENV: development
+      PORT: "3001"
+      DATABASE_URL: postgresql:///mitsubachi_ruby_development
+      FILE_STORAGE_ROOT: ${RUNTIME_ROOT}/storage
+      MITSUBACHI_STORAGE_ROOT: ${RUNTIME_ROOT}/storage
+      FRONTEND_ORIGIN: http://127.0.0.1:3000,http://localhost:3000
+      FRONTEND_URL: http://127.0.0.1:3000
+
+  front:
+    cwd: ${FRONT_ROOT}
+    command:
+      - npm
+      - run
+      - dev
+      - --
+      - --host
+      - 127.0.0.1
+      - --port
+      - "3000"
+      - --strictPort
+    port: 3000
+    healthcheck: http://127.0.0.1:3000/
+    env:
+      VITE_API_BASE_URL: http://127.0.0.1:8080
+
+  nginx:
+    cwd: ${DEVKIT_ROOT}
+    command:
+      - nginx
+      - -p
+      - ${RUNTIME_ROOT}/nginx/
+      - -c
+      - ${RUNTIME_ROOT}/nginx/nginx.conf
+      - -g
+      - daemon off;
+    port: 8080
+    healthcheck: http://127.0.0.1:8080/devkit/health
+
+  mailpit:
+    cwd: ${DEVKIT_ROOT}
+    command:
+      - mailpit
+      - --smtp
+      - 127.0.0.1:1025
+      - --listen
+      - 127.0.0.1:8025
+      - --database
+      - ${RUNTIME_ROOT}/mailpit.db
+    port: 8025
+    healthcheck: http://127.0.0.1:8025/

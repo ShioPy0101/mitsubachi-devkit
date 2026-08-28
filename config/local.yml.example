@@ -1,0 +1,3 @@
+# Copy this file to config/local.yml only when YAML overrides are preferable
+# to .env.local. Values are merged over config/devkit.yml.
+{}
