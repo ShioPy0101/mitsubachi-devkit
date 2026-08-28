@@ -52,6 +52,15 @@ http {
             add_header Accept-Ranges bytes always;
             add_header X-Content-Type-Options nosniff always;
         }
+        
+        # HTTPS 有効化前も Preview cache は外部 URL から直接公開しない。
+        location /internal/previews/ {
+            internal;
+            alias <%= storage_root %>/previews/;
+            sendfile on;
+            tcp_nopush on;
+            add_header X-Content-Type-Options nosniff always;
+        }
 
         location / {
             proxy_pass http://127.0.0.1:<%= front_port %>;
