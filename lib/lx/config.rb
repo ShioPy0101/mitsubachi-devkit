@@ -185,6 +185,7 @@ module Lx
       refuse!("RAILS_ENV=#{env['RAILS_ENV']}") if env["RAILS_ENV"] && env["RAILS_ENV"] != "development"
       check_database!(env["DATABASE_URL"]) if env["DATABASE_URL"]
       check_storage!(env["FILE_STORAGE_ROOT"]) if env["FILE_STORAGE_ROOT"]
+      check_mail!(env) if env["SMTP_ADDRESS"] || env["SMTP_AUTHENTICATION"]
       check_hosts!(env)
     end
 

@@ -66,6 +66,12 @@ class ConfigTest < Minitest::Test
     assert_raises(Lx::SafetyError) { Lx::Config.new(root: @root, env: {}).ensure_safe! }
   end
 
+  def test_外部SMTPの上書きを拒否する
+    config = Lx::Config.new(root: @root, env: {"SMTP_ADDRESS" => "smtp.production.example"})
+
+    assert_raises(Lx::SafetyError) { config.ensure_safe! }
+  end
+
   private
 
   def write_override(value)
