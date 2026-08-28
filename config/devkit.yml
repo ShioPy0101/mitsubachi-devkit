@@ -23,12 +23,19 @@ required_commands:
   - nginx
   - mailpit
   - ffmpeg
+  - php
+
+adminer:
+  version: "5.5.1"
+  url: https://www.adminer.org/static/download/5.5.1/adminer-5.5.1.php
+  sha256: f2c70c6403a042d554be1dd8d69b6f6270a97e5b40d2fb7626f46aad821e9a18
 
 startup_order:
+  - mailpit
   - ruby
   - front
   - nginx
-  - mailpit
+  - adminer
 
 services:
   ruby:
@@ -50,6 +57,11 @@ services:
       MITSUBACHI_STORAGE_ROOT: ${RUNTIME_ROOT}/storage
       FRONTEND_ORIGIN: http://127.0.0.1:3000,http://localhost:3000
       FRONTEND_URL: http://127.0.0.1:3000
+      SMTP_ADDRESS: 127.0.0.1
+      SMTP_PORT: "1025"
+      SMTP_AUTHENTICATION: none
+      SMTP_ENABLE_STARTTLS_AUTO: "false"
+      MAIL_FROM: Mitsubachi <no-reply@localhost>
 
   front:
     cwd: ${FRONT_ROOT}
@@ -80,6 +92,17 @@ services:
       - daemon off;
     port: 8080
     healthcheck: http://127.0.0.1:8080/devkit/health
+
+  adminer:
+    cwd: ${RUNTIME_ROOT}/adminer
+    command:
+      - php
+      - -S
+      - 127.0.0.1:8081
+      - -t
+      - ${RUNTIME_ROOT}/adminer
+    port: 8081
+    healthcheck: http://127.0.0.1:8081/
 
   mailpit:
     cwd: ${DEVKIT_ROOT}

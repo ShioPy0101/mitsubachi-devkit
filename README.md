@@ -30,6 +30,7 @@ cd mitsubachi-devkit
 - 未作成の場合だけ `.env.local` と `config/local.yml` をテンプレートから生成
 - `bundle check` に失敗した場合だけ `bundle install`
 - `node_modules` がない場合だけ `npm install`
+- 公式配布の Adminer 5.5.1 を SHA-256 検証付きで `runtime/adminer/` に配置
 - Rails の `db:prepare` による development DB の安全な作成と migration
 - ローカル Nginx 設定の生成
 
@@ -57,7 +58,7 @@ lx pm logs ruby
 lx pm stop
 ```
 
-`start` は設定と production safety を確認し、runtime と Nginx 設定を生成してから、PostgreSQL 接続、`db:prepare`、ruby、front、nginx、mailpit の順で処理します。起動済みサービスは PID、プロセス開始情報、healthcheck を確認してスキップするため、繰り返し実行しても多重起動しません。
+`start` は設定と production safety を確認し、runtime と Nginx 設定を生成してから、PostgreSQL 接続、`db:prepare`、mailpit、ruby、front、nginx、adminer の順で処理します。SMTP依存先を先に利用可能にしてからRailsを起動します。起動済みサービスは PID、プロセス開始情報、healthcheck を確認してスキップするため、繰り返し実行しても多重起動しません。
 
 `stop` は devkit が記録した PID とプロセス開始情報が一致するプロセスグループだけへ SIGTERM を送ります。タイムアウトした場合のみ SIGKILL へ進みます。OS が管理する PostgreSQL や、別途起動した Rails、Node、Nginx は停止しません。
 
@@ -75,6 +76,9 @@ http://127.0.0.1:3001
 Nginx local proxy / file delivery
 http://127.0.0.1:8080
 
+Adminer
+http://127.0.0.1:8081
+
 Mailpit Web UI
 http://127.0.0.1:8025
 
@@ -84,7 +88,9 @@ Mailpit SMTP
 
 Frontend には `VITE_API_BASE_URL=http://127.0.0.1:8080` を注入します。API リクエストを Nginx 経由にすることで、Rails の `X-Accel-Redirect` を `runtime/storage/drive_items/` の内部配信へ接続し、Range、`206 Partial Content`、`Content-Range` を本番に近い経路で確認できます。
 
-Rails の development mailer は既存どおり Resend を利用します。devkit は `mitsubachi-ruby/.env`、credentials、`RESEND_API_KEY`、`MAIL_FROM` を生成・変更しません。Mailpit は独立したローカル確認用サービスとして起動します。
+Adminer のログインではデータベース種別に `PostgreSQL`、サーバーに `127.0.0.1`、データベースに `mitsubachi_ruby_development` を指定してください。ユーザー名とパスワードはローカル PostgreSQL の認証設定に従います。Adminer 自体も `127.0.0.1` のみに bind し、外部ネットワークへは公開しません。
+
+devkitから起動するRailsのdevelopment mailerには、Mailpit (`127.0.0.1:1025`、認証・STARTTLSなし) を明示的に設定します。`mitsubachi-ruby/.env` の `RESEND_API_KEY` や `MAIL_FROM` は変更せず、devkit経由のプロセスにだけローカルSMTP設定を注入します。productionは従来どおりResendを利用します。
 
 ## 設定
 
@@ -157,6 +163,7 @@ psql postgresql:///mitsubachi_ruby_development -c 'SELECT 1'
 lsof -nP -iTCP:3000 -sTCP:LISTEN
 lsof -nP -iTCP:3001 -sTCP:LISTEN
 lsof -nP -iTCP:8080 -sTCP:LISTEN
+lsof -nP -iTCP:8081 -sTCP:LISTEN
 lsof -nP -iTCP:1025 -sTCP:LISTEN
 lsof -nP -iTCP:8025 -sTCP:LISTEN
 ```
@@ -193,7 +200,18 @@ Frontend は既存の `package-lock.json` と npm scripts を利用します。
 
 ### Mailpit 不在
 
-`lx doctor` の案内に従って Mailpit を手動インストールしてください。devkit は自動インストールしません。`mailpit --version` と 1025/8025 の空きを確認します。
+`lx doctor` の案内に従ってMailpitを手動インストールしてください。devkitは自動インストールしません。`mailpit --version` と1025/8025の空きを確認します。
+
+### Adminer / PHP
+
+Adminer 本体は `lx setup` が公式配布元から取得し、固定した SHA-256 と一致した場合だけ配置します。PHP は手動 prerequisite です。
+
+```text
+macOS:  brew install php
+Ubuntu: sudo apt install php php-pgsql
+```
+
+配置し直す場合は `runtime/adminer/index.php` を削除してから `lx setup --skip-dependencies` を実行してください。
 
 ### ffmpeg 不在
 

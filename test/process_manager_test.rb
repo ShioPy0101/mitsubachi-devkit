@@ -143,6 +143,14 @@ class ProcessManagerTest < Minitest::Test
     assert_nil result.pid
   end
 
+  def test_MailpitのSMTP_port競合も拒否する
+    @port_probe.open = true
+
+    error = assert_raises(Lx::CommandError) { @manager.start("mailpit") }
+
+    assert_match(/Port 1025 is already in use/, error.message)
+  end
+
   def test_管理外プロセスがportを使用中なら起動を拒否する
     @port_probe.open = true
 
@@ -150,14 +158,6 @@ class ProcessManagerTest < Minitest::Test
 
     assert_match(/Port 3001 is already in use/, error.message)
     assert_empty @backend.spawns
-  end
-
-  def test_MailpitのSMTP_port競合も拒否する
-    @port_probe.open = true
-
-    error = assert_raises(Lx::CommandError) { @manager.start("mailpit") }
-
-    assert_match(/Port 1025 is already in use/, error.message)
   end
 
   private

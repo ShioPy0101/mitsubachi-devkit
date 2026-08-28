@@ -41,6 +41,19 @@ class SetupTest < Minitest::Test
     end
   end
 
+  class FakeAdminer
+    attr_reader :installs
+
+    def initialize
+      @installs = 0
+    end
+
+    def install!
+      @installs += 1
+      @installs == 1
+    end
+  end
+
   def setup
     @tmp = Pathname(Dir.mktmpdir)
     @root = @tmp.join("mitsubachi-devkit")
@@ -56,6 +69,7 @@ class SetupTest < Minitest::Test
     @config = Lx::Config.new(root: @root, env: {})
     @runner = FakeRunner.new
     @database = FakeDatabase.new
+    @adminer = FakeAdminer.new
   end
 
   def teardown
@@ -63,7 +77,7 @@ class SetupTest < Minitest::Test
   end
 
   def test_setupは既存設定を壊さず冪等に初期化する
-    setup = Lx::Setup.new(config: @config, runner: @runner, database: @database, output: StringIO.new)
+    setup = Lx::Setup.new(config: @config, runner: @runner, database: @database, adminer: @adminer, output: StringIO.new)
 
     2.times { setup.run }
 
@@ -71,6 +85,7 @@ class SetupTest < Minitest::Test
     assert @root.join(".env.local").file?
     assert @root.join("config/local.yml").file?
     assert_equal 2, @database.prepares
+    assert_equal 2, @adminer.installs
     refute @runner.runs.any? { |kind, command| kind == :run && command == ["npm", "install"] }
   end
 end
