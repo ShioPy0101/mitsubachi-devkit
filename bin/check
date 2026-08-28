@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "rbconfig"
+
+root = File.expand_path("..", __dir__)
+files = Dir[File.join(root, "{lib,test}", "**", "*.rb")] + [File.join(root, "lx"), File.join(root, "Rakefile")]
+
+files.each do |file|
+  abort("Syntax check failed: #{file}") unless system(RbConfig.ruby, "-cw", file, out: File::NULL)
+end
+
+exec(RbConfig.ruby, "-Itest", "-e", 'Dir["test/**/*_test.rb"].sort.each { |file| require_relative file }', chdir: root)
