@@ -1,16 +1,18 @@
 # frozen_string_literal: true
 
 require "lx/database"
+require "lx/adminer"
 require "lx/runtime"
 require "lx/system"
 
 module Lx
   class Setup
-    def initialize(config:, runner: CommandRunner.new, database: nil, runtime: nil, output: $stdout)
+    def initialize(config:, runner: CommandRunner.new, database: nil, runtime: nil, adminer: nil, output: $stdout)
       @config = config
       @runner = runner
       @database = database || Database.new(config:, runner:)
       @runtime = runtime || Runtime.new(config)
+      @adminer = adminer || Adminer.new(config:)
       @output = output
     end
 
@@ -25,6 +27,8 @@ module Lx
       @runtime.render_nginx!
 
       install_dependencies! unless skip_dependencies
+
+      announce("Installing Adminer #{@config.adminer_version}") if @adminer.install!
 
       announce("Preparing development database")
       @database.prepare!(output: @output)

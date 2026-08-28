@@ -37,6 +37,25 @@ class ConfigTest < Minitest::Test
     assert_equal ["bin/rails", "server", "-b", "127.0.0.1", "-p", "3001"], command
   end
 
+  def test_adminerをloopback上の管理サービスとして構成する
+    config = Lx::Config.new(root: @root, env: {})
+    service = config.service("adminer")
+
+    assert_equal "5.5.1", config.adminer_version
+    assert_equal 8081, service.port
+    assert_equal ["php", "-S", "127.0.0.1:8081", "-t", @root.join("runtime/adminer").to_s], service.command
+  end
+
+  def test_Railsのメール配送をMailpitへ向ける
+    config = Lx::Config.new(root: @root, env: {})
+    env = config.service("ruby").env
+
+    assert_equal "127.0.0.1", env.fetch("SMTP_ADDRESS")
+    assert_equal "1025", env.fetch("SMTP_PORT")
+    assert_equal "none", env.fetch("SMTP_AUTHENTICATION")
+    assert_equal "false", env.fetch("SMTP_ENABLE_STARTTLS_AUTO")
+  end
+
   def test_production環境を拒否する
     write_override("services" => {"ruby" => {"env" => {"RAILS_ENV" => "production"}}})
 

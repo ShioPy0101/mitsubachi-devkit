@@ -16,12 +16,14 @@ module Lx
       "PostgreSQL" => ["psql", "--version"],
       "nginx" => ["nginx", "-v"],
       "ffmpeg" => ["ffmpeg", "-version"],
-      "mailpit" => ["mailpit", "--version"]
+      "mailpit" => ["mailpit", "--version"],
+      "PHP" => ["php", "--version"]
     }.freeze
     INSTALL_HELP = {
       "nginx" => "Install nginx manually (macOS: brew install nginx, Ubuntu: sudo apt install nginx).",
       "ffmpeg" => "Install ffmpeg manually (macOS: brew install ffmpeg, Ubuntu: sudo apt install ffmpeg).",
       "mailpit" => "Install Mailpit manually: https://mailpit.axllent.org/docs/install/",
+      "PHP" => "Install PHP manually (macOS: brew install php, Ubuntu: sudo apt install php php-pgsql).",
       "PostgreSQL" => "Install PostgreSQL client tools and start your local PostgreSQL service.",
       "Ruby" => "Install the Ruby version in .ruby-version with your preferred version manager.",
       "Bundler" => "Install Bundler for the Ruby version in .ruby-version.",

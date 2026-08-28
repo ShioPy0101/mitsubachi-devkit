@@ -6,7 +6,7 @@ require "pathname"
 
 module Lx
   class Runtime
-    DIRECTORIES = %w[logs pids storage/drive_items tmp nginx].freeze
+    DIRECTORIES = %w[logs pids storage/drive_items tmp nginx adminer].freeze
 
     def initialize(config)
       @config = config

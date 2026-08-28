@@ -62,6 +62,18 @@ module Lx
       fetch("required_commands")
     end
 
+    def adminer_version
+      fetch("adminer", "version").to_s
+    end
+
+    def adminer_url
+      fetch("adminer", "url")
+    end
+
+    def adminer_sha256
+      fetch("adminer", "sha256")
+    end
+
     def health_timeout
       Integer(data.fetch("health_timeout", 30))
     end
@@ -106,6 +118,9 @@ module Lx
       REPOSITORY_KEYS.each { |name| fetch("repositories", name) }
       fetch("database", "url")
       fetch("database", "name")
+      fetch("adminer", "version")
+      fetch("adminer", "url")
+      fetch("adminer", "sha256")
       fetch("services")
       fetch("startup_order").each { |name| service_definition(name) }
     end

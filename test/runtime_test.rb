@@ -25,7 +25,7 @@ class RuntimeTest < Minitest::Test
   def test_必要なruntimeディレクトリを冪等に作成する
     2.times { @runtime.prepare_directories! }
 
-    %w[logs pids storage/drive_items tmp nginx].each do |relative|
+    %w[logs pids storage/drive_items tmp nginx adminer].each do |relative|
       assert @config.runtime_root.join(relative).directory?
     end
   end

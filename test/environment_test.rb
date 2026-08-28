@@ -84,7 +84,7 @@ class EnvironmentTest < Minitest::Test
 
     statuses = environment(manager:).start
 
-    assert_equal %w[ruby front nginx mailpit], manager.starts
+    assert_equal %w[mailpit ruby front nginx adminer], manager.starts
     assert_equal 1, @database.prepares
     assert statuses.all? { |status| status.state == :running }
   end

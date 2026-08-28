@@ -143,6 +143,7 @@ module Lx
       @output.puts("\nFrontend:\n  http://127.0.0.1:3000")
       @output.puts("\nLocal proxy / file delivery:\n  http://127.0.0.1:8080")
       @output.puts("\nAPI (direct):\n  http://127.0.0.1:3001")
+      @output.puts("\nAdminer:\n  http://127.0.0.1:8081")
       @output.puts("\nMailpit:\n  http://127.0.0.1:8025")
     end
 
