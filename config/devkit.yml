@@ -46,7 +46,6 @@ services:
       RAILS_ENV: development
       RACK_ENV: development
       PORT: "3001"
-      DATABASE_URL: postgresql:///mitsubachi_ruby_development
       FILE_STORAGE_ROOT: ${RUNTIME_ROOT}/storage
       MITSUBACHI_STORAGE_ROOT: ${RUNTIME_ROOT}/storage
       FRONTEND_ORIGIN: http://127.0.0.1:3000,http://localhost:3000

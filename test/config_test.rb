@@ -60,6 +60,14 @@ class ConfigTest < Minitest::Test
     assert Lx::Config.new(root: @root, env: {}).ensure_safe!
   end
 
+  def test_YAMLで上書きしたdevelopmentデータベースをRailsへ渡す
+    write_override("database" => {"name" => "custom_development", "url" => "postgresql:///custom_development"})
+    config = Lx::Config.new(root: @root, env: {})
+
+    assert_equal "postgresql:///custom_development", config.local_environment.fetch("DATABASE_URL")
+    assert config.ensure_safe!
+  end
+
   def test_runtime外のストレージを拒否する
     write_override("services" => {"ruby" => {"env" => {"FILE_STORAGE_ROOT" => "/srv/mitsubachi/files"}}})
 

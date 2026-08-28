@@ -76,7 +76,8 @@ module Lx
         "MITSUBACHI_RUBY_ROOT" => repository("ruby").to_s,
         "MITSUBACHI_FRONT_ROOT" => repository("front").to_s,
         "MITSUBACHI_INFRA_ROOT" => repository("infra").to_s,
-        "MITSUBACHI_RUNTIME_ROOT" => runtime_root.to_s
+        "MITSUBACHI_RUNTIME_ROOT" => runtime_root.to_s,
+        "DATABASE_URL" => database_url
       )
     end
 
